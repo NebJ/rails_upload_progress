@@ -1,0 +1,90 @@
+= RailsUploadProgress
+
+RailsUploadProgress help you to easily create an AJAX upload progress bar with Prototype JavaScript framework on nginx hosted applications.
+
+== Install & use
+
+=== Install the plugin from github
+
+  script/plugin install git://github.com/nebj/rails-upload-progress.git
+
+=== Install the nginx module
+
+Download nginx-upload-progress-module from http://github.com/masterzen/nginx-upload-progress-module/tarball/v0.7 and untar it
+
+If you use passenger
+
+  gem install passenger
+  passenger-install-nginx-module
+
+Follow the wizard until the wizard ask you in which mode you want to install passenger, choose option 2 (Advanced).
+Add this option to specify the path to nginx-upload-progress-module
+
+  --add-module=/path_to_masterzen-nginx-upload-progress-module
+
+Edit yout nginx conf file (default: /opt/nginx/conf/nginx.conf) like that
+
+  http {
+    # Reserve a zone named proxied and max use 1m
+    upload_progress proxied 1m;
+
+    server {
+      listen            80;
+      server_name       localhost;
+      root              /path_to_your_rails_application/public;
+      passenger_enabled on;
+
+      # Specify max file size
+      client_max_body_size 500M;
+
+      # This will return the state of your uploads
+      location ^~ /progress_upload {
+        report_uploads proxied;
+      }
+
+      # Create a proxied zone to catch your uploads
+      location / {
+        proxy_pass http://127.0.0.1;
+        passenger_enabled on;
+        track_uploads proxied 30s;
+      }
+    }
+  }
+
+== Example
+
+  <h1>New photo</h1>
+
+  <% form_for(@photo, :url => photos_path(upload_progress_id_key => upload_progress_uuid)) do |f| %>
+    <%= f.error_messages %>
+
+    <p>
+      <%= f.label :file %>
+      <%= f.file_field :file %>
+    </p>
+
+    <p>
+      <%= upload_progress_bar %>
+    </p>
+
+    <p>
+      <%= f.submit 'Create' %>
+    </p>
+  <% end %>
+
+  <%= link_to 'Back', photos_path %>
+
+== Issues
+
+Don't forget to include Prototype file in your header.
+Prototype are automatically include with
+
+  <%= javascript_include_tag :defaults %>
+
+Include the helper in your controller if rails can't find helper methods
+
+  helper :rails_upload_progress
+
+== Copyright
+
+Copyright (c) 2010 {Benjamin LAN SUN LUK}[http://github.com/NebJ], released under the MIT license

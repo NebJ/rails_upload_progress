@@ -1,0 +1,9 @@
+CHANGELOG
+MIT-LICENSE
+README.rdoc
+Rakefile
+VERSION
+init.rb
+lib/app/helpers/rails_upload_progress_helper.rb
+lib/rails_upload_progress.rb
+Manifest
